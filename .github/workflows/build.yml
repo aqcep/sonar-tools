@@ -8,7 +8,7 @@ env:
   IMAGE_REFERENCE: ghcr.io/${{ github.repository }}:latest
 
 jobs:
-  scan:
+  image:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
