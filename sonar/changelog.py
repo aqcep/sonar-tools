@@ -41,11 +41,11 @@ class Changelog(object):
         cond1 = False
         cond2 = False
         for diff in self.sq_json["diffs"]:
-            if diff["key"] == "resolution" and "newValue" in diff and diff["newValue"] == resolve_reason:
+            if diff["key"] == "issueStatus" and "newValue" in diff and diff["newValue"] == resolve_reason:
                 cond1 = True
             if diff["key"] == "status" and "newValue" in diff and diff["newValue"] == "RESOLVED":
                 cond2 = True
-        return cond1 and cond2
+        return cond1 or cond2
 
     def is_resolve_as_fixed(self) -> bool:
         """Returns whether the changelog item is an issue resolved as fixed"""
@@ -53,7 +53,7 @@ class Changelog(object):
 
     def is_resolve_as_fp(self) -> bool:
         """Returns whether the changelog item is an issue resolved as false positive"""
-        return self.__is_resolve_as("FALSE-POSITIVE")
+        return self.__is_resolve_as("FALSE_POSITIVE")
 
     def is_resolve_as_wf(self) -> bool:
         """Returns whether the changelog item is an issue resolved as won't fix"""
@@ -201,6 +201,9 @@ class Changelog(object):
 
     def changelog_type(self) -> tuple[str, Optional[str]]:
         ctype = (None, None)
+
+        log.debug("is_resolve_as_fp: %s", self.__str__())
+
         if self.is_assignment():
             ctype = ("ASSIGN", self.new_assignee())
         elif self.is_reopen():
@@ -216,7 +219,7 @@ class Changelog(object):
         elif self.is_resolve_as_fixed():
             ctype = ("FIXED", None)
         elif self.is_resolve_as_fp():
-            ctype = ("FALSE-POSITIVE", None)
+            ctype = ("FALSE_POSITIVE", None)
         elif self.is_resolve_as_wf():
             ctype = ("WONT-FIX", None)
         elif self.is_tag():

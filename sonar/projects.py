@@ -325,7 +325,9 @@ class Project(components.Component):
         if not self._branches or not use_cache:
             try:
                 self._branches = branches.get_list(self)
-            except exceptions.UnsupportedOperation:
+            except exceptions.UnsupportedOperation as e:
+                log.debug("Caught exception in projects.py line 329, returning empty branches")
+                log.debug("Exception: %s", str(e))
                 self._branches = {}
         return self._branches
 
@@ -908,6 +910,7 @@ class Project(components.Component):
 
         src_branches = self.branches()
         tgt_branches = another_project.branches()
+        log.debug("Target %s has branches %s", str(another_project), ", ".join(tgt_branches))
         src_branches_list = list(src_branches.keys())
         tgt_branches_list = list(tgt_branches.keys())
         diff = list(set(src_branches_list) - set(tgt_branches_list))
