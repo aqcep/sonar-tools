@@ -406,13 +406,14 @@ class Finding(sq.SqObject):
         if self.key == another_finding.key:
             return True
         prelim_check = True
-        if self.rule in ("python:S6540"):
-            try:
-                col1 = self.sq_json["textRange"]["startOffset"]
-                col2 = another_finding.sq_json["textRange"]["startOffset"]
-                prelim_check = col1 == col2
-            except KeyError:
-                pass
+        
+        try:
+            col1 = self.sq_json["textRange"]["startOffset"]
+            col2 = another_finding.sq_json["textRange"]["startOffset"]
+            prelim_check = col1 == col2
+        except KeyError:
+            pass
+            
         if self.key == "444f6f46-9571-42e1-8ee4-d1171d8b497e":
             log.info("Source: %s / %s / %s / %s ", self.rule, self.hash, self.file(), self.message)
             log.info("Target: %s / %s / %s / %s ", another_finding.rule, another_finding.hash, another_finding.file(), another_finding.message)

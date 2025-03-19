@@ -40,18 +40,27 @@ class Changelog(object):
     def __is_resolve_as(self, resolve_reason: str) -> bool:
         cond1 = False
         cond2 = False
+        cond3 = False
+
         for diff in self.sq_json["diffs"]:
             if diff["key"] == "resolution" and "newValue" in diff and diff["newValue"] == resolve_reason:
                 cond1 = True
             if diff["key"] == "status" and "newValue" in diff and diff["newValue"] == "RESOLVED":
                 cond2 = True
-        return cond1 and cond2
+            # check deprecated status field called issueStatus
+            if diff["key"] == "issueStatus" and "newValue" in diff and diff["newValue"] == "RESOLVED":
+                cond3 = True
+        return cond1 and (cond2 or cond3)
 
     def is_resolve_as_fixed(self) -> bool:
         """Returns whether the changelog item is an issue resolved as fixed"""
         return self.__is_resolve_as("FIXED")
-
+    
     def is_resolve_as_fp(self) -> bool:
+        """Returns whether the changelog item is an issue resolved as false positive"""
+        return self.__is_resolve_as("FALSE_POSITIVE")
+
+    def is_resolve_as_fp_legacy(self) -> bool:
         """Returns whether the changelog item is an issue resolved as false positive"""
         return self.__is_resolve_as("FALSE-POSITIVE")
 
@@ -198,9 +207,19 @@ class Changelog(object):
             return None
         d = self.sq_json["diffs"][0]
         return d.get("newValue", "").replace(" ", ",")
+    
+    def is_accepted(self) -> bool:
+        """Returns whether the changelog item is an issue accepted"""
+        for d in self.sq_json["diffs"]:
+            if d.get("key", "") == "resolution" and d.get("newValue", "") == "ACCEPTED":
+                return True
+        return False
 
     def changelog_type(self) -> tuple[str, Optional[str]]:
         ctype = (None, None)
+
+        log.debug("Determining type of changelog: %s", self.__str__())
+
         if self.is_assignment():
             ctype = ("ASSIGN", self.new_assignee())
         elif self.is_reopen():
@@ -215,10 +234,14 @@ class Changelog(object):
             ctype = ("TYPE", self.new_type())
         elif self.is_resolve_as_fixed():
             ctype = ("FIXED", None)
-        elif self.is_resolve_as_fp():
+        elif self.is_resolve_as_fp_legacy():
             ctype = ("FALSE-POSITIVE", None)
+        elif self.is_resolve_as_fp():
+            ctype = ("FALSE_POSITIVE", None)
         elif self.is_resolve_as_wf():
             ctype = ("WONT-FIX", None)
+        elif self.is_accepted():
+            ctype = ("ACCEPT", None)
         elif self.is_tag():
             ctype = ("TAG", self.get_tags())
         elif self.is_closed():
