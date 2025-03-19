@@ -517,6 +517,8 @@ class Issue(findings.Finding):
         elif event_type == "INTERNAL":
             log.info("Changelog %s is internal, it will not be applied...", str(event))
             # self.add_comment(f"Change of issue type {origin}", settings[SYNC_ADD_COMMENTS])
+        elif event_type == "OPEN":
+            self.reopen()
         else:
             log.error("Event %s can't be applied", str(event))
             return False
