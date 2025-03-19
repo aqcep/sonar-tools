@@ -1,0 +1,2 @@
+## build image locally
+docker build -t "aqcep/sonar-tools:latest" -f ./conf/snapshot.Dockerfile .

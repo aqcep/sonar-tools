@@ -59,10 +59,9 @@ class Branch(components.Component):
     def __init__(self, project: projects.Project, name: str) -> None:
         """Don't use this, use class methods to create Branch objects
 
-        :raises UnsupportedOperation: When attempting to branches on Community Edition
+        
         """
-        if project.endpoint.edition() == "community":
-            raise exceptions.UnsupportedOperation(_UNSUPPORTED_IN_CE)
+        
         name = unquote(name)
         super().__init__(endpoint=project.endpoint, key=name)
         self.name = name
@@ -394,16 +393,15 @@ def get_list(project: projects.Project) -> dict[str, Branch]:
     """Retrieves the list of branches of a project
 
     :param projects.Project project: projects.Project the branch belongs to
-    :raises UnsupportedOperation: Branches not supported in Community Edition
+    
     :return: List of project branches
     :rtype: dict{branch_name: Branch}
     """
-    if project.endpoint.edition() == "community":
-        log.debug(_UNSUPPORTED_IN_CE)
-        raise exceptions.UnsupportedOperation(_UNSUPPORTED_IN_CE)
+    
 
     log.debug("Reading all branches of %s", str(project))
     data = json.loads(project.endpoint.get(Branch.API[c.LIST], params={"project": project.key}).text)
+    log.debug("Found %s branches", data.get("branches", {}))
     return {branch["name"]: Branch.load(project, branch["name"], data=branch) for branch in data.get("branches", {})}
 
 
