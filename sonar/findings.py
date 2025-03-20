@@ -408,9 +408,9 @@ class Finding(sq.SqObject):
         prelim_check = True
         
         try:
-            col1 = self.sq_json["textRange"]["startOffset"]
-            col2 = another_finding.sq_json["textRange"]["startOffset"]
-            prelim_check = col1 == col2
+            start_offset = self.sq_json["textRange"]["startOffset"] == another_finding.sq_json["textRange"]["startOffset"]
+            line = self.sq_json["line"] == another_finding.sq_json["line"]
+            prelim_check = start_offset and line
         except KeyError:
             pass
             
