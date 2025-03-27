@@ -35,10 +35,12 @@ from typing import Optional
 from cli import options
 import sonar.logging as log
 import sonar.platform as pf
-from sonar import syncer, exceptions, projects, branches, version
+from sonar import syncer, exceptions, projects, branches, version, issues, hotspots
 import sonar.utilities as util
 
 TOOL_NAME = "sonar-findings-sync"
+
+
 
 
 def __parse_args(desc: str) -> object:
@@ -47,6 +49,7 @@ def __parse_args(desc: str) -> object:
     parser = options.set_key_arg(parser)
     parser = options.set_output_file_args(parser, allowed_formats=("json,"))
     parser = options.set_target_sonar_args(parser)
+    
     parser.add_argument(
         "-r",
         "--recover",
@@ -89,6 +92,12 @@ def __parse_args(desc: str) -> object:
         default=False,
         action="store_true",
         help="If specified, will not add a link to source issue in the target issue comments",
+    )
+
+    parser.add_argument(
+        f"--{options.SEVERITIES}",
+        required=False,
+        help="Comma separated severities among" + util.list_to_csv(issues.SEVERITIES + hotspots.SEVERITIES),
     )
 
     return options.parse_and_check(parser=parser, logger_name=TOOL_NAME)
@@ -180,6 +189,7 @@ def main() -> None:
             syncer.SYNC_SERVICE_ACCOUNTS: util.csv_to_list(params["login"]),
             syncer.SYNC_SINCE_DATE: __since_date(**params),
             syncer.SYNC_THREADS: params["threads"],
+            syncer.SYNC_SEVERITIES: params["severities"],
         }
 
         report = []

@@ -42,6 +42,7 @@ TGT_URL = "targetFindingUrl"
 SYNC_STATUS = "syncStatus"
 SYNC_SINCE_DATE = "syncSinceDate"
 SYNC_THREADS = "threads"
+SYNC_SEVERITIES = "severities"
 
 
 def __get_findings(findings_list: list[findings.Finding]) -> list[dict[str, str]]:
@@ -61,7 +62,7 @@ def __process_exact_sibling(finding: findings.Finding, sibling: findings.Finding
         SRC_URL: finding.url(),
         SYNC_STATUS: "synchronized",
         SYNC_MSG: msg,
-        TGT_KEY: sibling.key,
+        TGT_KEY: sibling.key,w
         TGT_URL: sibling.url(),
     }
 

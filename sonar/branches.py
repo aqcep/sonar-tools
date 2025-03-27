@@ -32,7 +32,7 @@ from sonar import platform
 from sonar.util import types, cache, constants as c
 import sonar.logging as log
 import sonar.sqobject as sq
-from sonar import components, settings, exceptions, tasks
+from sonar import components, settings, exceptions, tasks, syncer
 from sonar import projects
 import sonar.utilities as util
 
@@ -319,11 +319,13 @@ class Branch(components.Component):
         """
         from sonar.syncer import sync_lists
 
+        filters: types.ApiParams = {"impactSeverities": sync_settings.get(syncer.SYNC_SEVERITIES)}
+
         report, counters = [], {}
         log.info("Syncing %s (%s) and %s (%s) issues", str(self), self.endpoint.url, str(another_branch), another_branch.endpoint.url)
         (report, counters) = sync_lists(
-            list(self.get_issues().values()),
-            list(another_branch.get_issues().values()),
+            list(self.get_issues(filters).values()),
+            list(another_branch.get_issues(filters).values()),
             self,
             another_branch,
             sync_settings=sync_settings,
