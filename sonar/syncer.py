@@ -62,7 +62,7 @@ def __process_exact_sibling(finding: findings.Finding, sibling: findings.Finding
         SRC_URL: finding.url(),
         SYNC_STATUS: "synchronized",
         SYNC_MSG: msg,
-        TGT_KEY: sibling.key,w
+        TGT_KEY: sibling.key,
         TGT_URL: sibling.url(),
     }
 
